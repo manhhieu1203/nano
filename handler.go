@@ -50,7 +50,9 @@ var (
 func hbdEncode() {
 	data, err := json.Marshal(map[string]interface{}{
 		"code": 200,
-		"sys":  map[string]float64{"heartbeat": env.heartbeat.Seconds()},
+		"sys": map[string]interface{}{
+			"heartbeat": env.heartbeat.Seconds(),
+			"dict":      env.dict},
 	})
 	if err != nil {
 		panic(err)
@@ -195,7 +197,16 @@ func (h *handlerService) register(comp component.Component, opts []component.Opt
 	// register all handlers
 	h.services[s.Name] = s
 	for name, handler := range s.Handlers {
-		h.handlers[fmt.Sprintf("%s.%s", s.Name, name)] = handler
+		route := fmt.Sprintf("%s.%s", s.Name, name)
+		h.handlers[route] = handler
+		if env.autoAddDictFromComponent {
+			_, ok := env.dict[route]
+			if ok {
+				logger.Println("[Warn]", route, "is exists in Dictionary")
+			} else {
+				env.dict[route] = uint16(len(env.dict) + 1)
+			}
+		}
 	}
 	return nil
 }

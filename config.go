@@ -44,13 +44,14 @@ var (
 	// env represents the environment of the current process, includes
 	// work path and config path etc.
 	env = &struct {
-		wd          string                   // working path
-		die         chan bool                // wait for end application
-		heartbeat   time.Duration            // heartbeat internal
-		checkOrigin func(*http.Request) bool // check origin when websocket enabled
-		debug       bool                     // enable debug
-		wsPath      string                   // WebSocket path(eg: ws://127.0.0.1/wsPath)
-
+		wd                       string                   // working path
+		die                      chan bool                // wait for end application
+		heartbeat                time.Duration            // heartbeat internal
+		checkOrigin              func(*http.Request) bool // check origin when websocket enabled
+		debug                    bool                     // enable debug
+		wsPath                   string                   // WebSocket path(eg: ws://127.0.0.1/wsPath)
+		dict                     map[string]uint16
+		autoAddDictFromComponent bool
 		// session closed handlers
 		muCallbacks sync.RWMutex           // protect callbacks
 		callbacks   []SessionClosedHandler // callbacks that emitted on session closed
@@ -81,4 +82,6 @@ func init() {
 	env.debug = false
 	env.muCallbacks = sync.RWMutex{}
 	env.checkOrigin = func(_ *http.Request) bool { return true }
+	env.dict = make(map[string]uint16)
+	env.autoAddDictFromComponent = false
 }

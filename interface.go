@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/lonnng/nano/component"
-	"github.com/lonnng/nano/internal/message"
 )
 
 // Listen listens on the TCP network address addr
@@ -78,7 +77,21 @@ func OnSessionClosed(cb SessionClosedHandler) {
 
 // SetDictionary set routes map, TODO(warning): set dictionary in runtime would be a dangerous operation!!!!!!
 func SetDictionary(dict map[string]uint16) {
-	message.SetDictionary(dict)
+	env.dict = dict
+}
+
+// SetAutoDictionary set routes map with auto get from component, TODO(warning): set dictionary in runtime would be a dangerous operation!!!!!!
+func SetAutoDictionary(routes ...string) {
+	env.autoAddDictFromComponent = true
+
+	for _, k := range routes {
+		_, ok := env.dict[k]
+		if ok {
+			logger.Println("[Warn]", k, "is exists in Dictionary")
+		} else {
+			env.dict[k] = uint16(len(env.dict) + 1)
+		}
+	}
 }
 
 func SetWSPath(path string) {

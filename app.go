@@ -28,14 +28,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gorilla/websocket"
-	"time"
 	"strings"
+	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/lonnng/nano/internal/message"
 )
 
 func listen(addr string, isWs bool) {
-	hbdEncode()
 	startupComponents()
+	hbdEncode()
+	message.SetDictionary(env.dict)
 
 	// create global ticker instance, timer precision could be customized
 	// by SetTimerPrecision
@@ -97,7 +100,7 @@ func listenAndServeWS(addr string) {
 		CheckOrigin:     env.checkOrigin,
 	}
 
-	http.HandleFunc("/"+strings.TrimPrefix(env.wsPath,"/"), func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/"+strings.TrimPrefix(env.wsPath, "/"), func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			logger.Println(fmt.Sprintf("Upgrade failure, URI=%s, Error=%s", r.RequestURI, err.Error()))
